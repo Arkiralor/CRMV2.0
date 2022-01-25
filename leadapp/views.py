@@ -72,3 +72,112 @@ class NewLead(APIView):
             full_data,
             status=status.HTTP_201_CREATED
         )
+
+class ViewClaimed(APIView):
+    authentication_classes = (TokenAuthentication)
+    permission_classes = (IsAuthenticated)
+
+    def get(self, request):
+        '''
+        View to get all leads claimed by user:
+        '''
+
+        agent = get_agent(request.user)
+        
+        queryset_basic = Lead.objects.filter(claimed_by = agent).all()
+        serialized_basic = LeadSerializer(queryset_basic, many=True)
+
+        # For other types:
+
+        # queryset_contact = Contact.objects.filter(claimed_by = agent).all()
+        # serialized_contact = ContactSerializer(queryset_contact, many=True)
+
+        # queryset_academic = AcademicReq.objects.filter(claimed_by = agent).all()
+        # serialized_academic = AcademicSerializer(queryset_academic, many=True)
+        
+
+        # return_data = {
+        #     **serialized_basic.data,
+        #     **serialized_contact.data,
+        #     **serialized_academic.data
+        # }
+
+        return Response(
+            serialized_basic.data,
+            status=status.HTTP_302_FOUND
+        )
+
+class GetIndClaimed(APIView):
+    authentication_classes = (TokenAuthentication)
+    permission_classes = (IsAuthenticated)
+
+    def get(self, request):
+        '''
+        View to get all leads claimed by user:
+        '''
+
+        agent = get_agent(request.user)
+        
+        queryset_basic = Lead.objects.get(pk=id)
+        if agent != queryset_basic.claimed_by:
+            return Response(
+                {
+                    "error": "You are not authorised to view this lead."
+                },
+                status = status.HTTP_401_UNAUTHORIZED
+            )
+
+        serialized_basic = LeadSerializer(queryset_basic, many=True)
+
+        # For other types:
+
+        queryset_contact = Contact.objects.filter(claimed_by = agent).all()
+        serialized_contact = ContactSerializer(queryset_contact, many=True)
+
+        queryset_academic = AcademicReq.objects.filter(claimed_by = agent).all()
+        serialized_academic = AcademicSerializer(queryset_academic, many=True)
+        
+
+        return_data = {
+            **serialized_basic.data,
+            **serialized_contact.data,
+            **serialized_academic.data
+        }
+
+        return Response(
+            return_data,
+            status=status.HTTP_302_FOUND
+        )
+
+
+    
+
+class ClaimLead(APIView):
+    authentication_classes = (TokenAuthentication)
+    permission_classes = (IsAuthenticated)
+    
+    def post(self, request, id:int):
+        '''
+        View to claim a Lead:
+        '''
+        agent = get_agent(request.user)
+        lead = Lead.objects.get(pk=id)
+        lead.claimed_by = agent
+        
+        contact = Contact.objects.filter(prospect = lead).all()
+        for item in contact:
+            item.claimed_by = agent
+            item.save()
+
+        academic = AcademicReq.objects.filter(prospect = lead).all()
+        for item in academic:
+            item.claimed_by = agent
+            item.save()
+
+        lead.save()
+        serialized = LeadSerializer(lead)
+        return Response(
+            serialized.data,
+            status=status.HTTP_200_OK
+        )
+
