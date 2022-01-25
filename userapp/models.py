@@ -16,6 +16,7 @@ class AgentProfile(models.Model):
     date_joined = models.DateTimeField(auto_now_add=True)
 
     def __init__(self, user: User):
+        self.user = user
         self.fname = self.user.username
         self.fname = self.user.first_name
         self.lname = self.user.last_name
