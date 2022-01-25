@@ -8,14 +8,14 @@ from rest_framework import status
 from django.db.models import Q
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from .utils import get_agent
+from .helpers import get_agent
 
 # Create your views here.
 
 
 class GetUnclaimed(APIView):
-    authentication_classes = (TokenAuthentication)
-    permission_classes = (IsAuthenticated)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         try:
@@ -77,8 +77,8 @@ class NewLead(APIView):
 
 
 class ViewClaimed(APIView):
-    authentication_classes = (TokenAuthentication)
-    permission_classes = (IsAuthenticated)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         '''
@@ -97,12 +97,12 @@ class ViewClaimed(APIView):
 
 
 class GetIndClaimed(APIView):
-    authentication_classes = (TokenAuthentication)
-    permission_classes = (IsAuthenticated)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         '''
-        View to get all leads claimed by user:
+        View to get individual leads claimed by user:
         '''
 
         agent = get_agent(request.user)
@@ -120,11 +120,11 @@ class GetIndClaimed(APIView):
 
         # For other types:
 
-        queryset_contact = Contact.objects.filter(claimed_by=agent).all()
-        serialized_contact = ContactSerializer(queryset_contact, many=True)
+        queryset_contact = Contact.objects.filter(claimed_by=agent).first()
+        serialized_contact = ContactSerializer(queryset_contact)
 
-        queryset_academic = AcademicReq.objects.filter(claimed_by=agent).all()
-        serialized_academic = AcademicSerializer(queryset_academic, many=True)
+        queryset_academic = AcademicReq.objects.filter(claimed_by=agent).first()
+        serialized_academic = AcademicSerializer(queryset_academic)
 
         return_data = {
             **serialized_basic.data,
@@ -139,26 +139,25 @@ class GetIndClaimed(APIView):
 
 
 class ClaimLead(APIView):
-    authentication_classes = (TokenAuthentication)
-    permission_classes = (IsAuthenticated)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
-    def post(self, request, id: int):
+    def post(self, request):
         '''
         View to claim a Lead:
         '''
+        ret_key = request.data.get('id')
         agent = get_agent(request.user)
-        lead = Lead.objects.get(pk=id)
+        lead = Lead.objects.get(pk=ret_key)
         lead.claimed_by = agent
 
-        contact = Contact.objects.filter(prospect=lead).all()
-        for item in contact:
-            item.claimed_by = agent
-            item.save()
+        contact = Contact.objects.filter(prospect=lead).first()
+        contact.claimed_by = agent
+        contact.save()
 
-        academic = AcademicReq.objects.filter(prospect=lead).all()
-        for item in academic:
-            item.claimed_by = agent
-            item.save()
+        academic = AcademicReq.objects.filter(prospect=lead).first()
+        academic.claimed_by = agent
+        academic.save()
 
         lead.save()
         serialized = LeadSerializer(lead)
