@@ -1,7 +1,6 @@
 from .models import User, AgentProfile
 from .serializers import UserSerializer, AgentSerializer
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password, check_password
@@ -106,7 +105,7 @@ class GenerateAgentView(APIView):
 
     def post(self, request):
         '''
-        POST/Generate a new author/profile from an existing user in the system:
+        POST/Generate a new agent profile from an existing user in the system:
         '''
         existing_agent = AgentProfile.objects.filter(user=request.user).first()
 
