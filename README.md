@@ -2,7 +2,7 @@
 
 <p>A Client Relations Management (CRM) module built in Python 3.9 using the Django framework with the RestFramework module.</p>
 
-## Working Theory:
+## Working Theory
 
 1. The CRM account is associated with each employee/student-counsellor of the company with
 their email id & password.
@@ -22,7 +22,7 @@ publically visible to any other employee. We can say that this is now a private 
 <!-- 5. Django Admin Panel for CRUD operations of all the relevant fields, implemented
 above -->
 
-### Constraint:
+### Constraint
 
 - Database must be PostgreSQL/MySQL.
 
@@ -30,7 +30,7 @@ above -->
 
 ## .Env File Format
 
-```
+``` Env
 SECRET_KEY = ' '
 PGDATABASE = ' '
 PGUSER = ' '
@@ -40,4 +40,3 @@ PGPORT = ' '
 TIMEZONE = 'Continent/City'
 LANGUAGE_CODE = 'language_code-dialect_code'
 ```
-
