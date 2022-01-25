@@ -7,11 +7,11 @@
 1. The CRM account is associated with each employee/student-counsellor of the company with
 their email id & password.
 
-2. There is an enquiry form which is provided to every prospective client to fill their basic details
+2. There is an enquiry form which is provided to every prospective client (lead) to fill their basic details
 i.e. Name, Email, Course interest etc. This form can be circulated online to capture leads or
 can be shared by the counsellor itself after it has connected with the student via call.
 
-3. Inside the CRM, each employee/counsellor can see all the enquiries that prospective clients
+3. Inside the CRM, each employee/counsellor can see all the enquiries that the lead(s)
 have filled. We can say these are Public Enquiries that are visible to all the
 employee/counsellor.
 
