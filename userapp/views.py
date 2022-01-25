@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 
 # Create your views here.
 
+
 class GetUserView(APIView):
     '''
     Class to GET all model User:

@@ -12,6 +12,7 @@ from .utils import get_agent
 
 # Create your views here.
 
+
 class GetUnclaimed(APIView):
     authentication_classes = (TokenAuthentication)
     permission_classes = (IsAuthenticated)
@@ -35,7 +36,8 @@ class GetUnclaimed(APIView):
             serialized.data,
             status=status.HTTP_202_ACCEPTED
         )
-        
+
+
 class NewLead(APIView):
 
     def post(self, request):
@@ -47,7 +49,7 @@ class NewLead(APIView):
             basic.save()
         else:
             return Response({"error": str(basic.errors)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         contact = ContactSerializer(data=new_data)
         if contact.is_valid():
             contact.prospect = basic.id
@@ -73,6 +75,7 @@ class NewLead(APIView):
             status=status.HTTP_201_CREATED
         )
 
+
 class ViewClaimed(APIView):
     authentication_classes = (TokenAuthentication)
     permission_classes = (IsAuthenticated)
@@ -83,29 +86,15 @@ class ViewClaimed(APIView):
         '''
 
         agent = get_agent(request.user)
-        
-        queryset_basic = Lead.objects.filter(claimed_by = agent).all()
+
+        queryset_basic = Lead.objects.filter(claimed_by=agent).all()
         serialized_basic = LeadSerializer(queryset_basic, many=True)
-
-        # For other types:
-
-        # queryset_contact = Contact.objects.filter(claimed_by = agent).all()
-        # serialized_contact = ContactSerializer(queryset_contact, many=True)
-
-        # queryset_academic = AcademicReq.objects.filter(claimed_by = agent).all()
-        # serialized_academic = AcademicSerializer(queryset_academic, many=True)
-        
-
-        # return_data = {
-        #     **serialized_basic.data,
-        #     **serialized_contact.data,
-        #     **serialized_academic.data
-        # }
 
         return Response(
             serialized_basic.data,
             status=status.HTTP_302_FOUND
         )
+
 
 class GetIndClaimed(APIView):
     authentication_classes = (TokenAuthentication)
@@ -117,26 +106,25 @@ class GetIndClaimed(APIView):
         '''
 
         agent = get_agent(request.user)
-        
+
         queryset_basic = Lead.objects.get(pk=id)
         if agent != queryset_basic.claimed_by:
             return Response(
                 {
                     "error": "You are not authorised to view this lead."
                 },
-                status = status.HTTP_401_UNAUTHORIZED
+                status=status.HTTP_401_UNAUTHORIZED
             )
 
         serialized_basic = LeadSerializer(queryset_basic, many=True)
 
         # For other types:
 
-        queryset_contact = Contact.objects.filter(claimed_by = agent).all()
+        queryset_contact = Contact.objects.filter(claimed_by=agent).all()
         serialized_contact = ContactSerializer(queryset_contact, many=True)
 
-        queryset_academic = AcademicReq.objects.filter(claimed_by = agent).all()
+        queryset_academic = AcademicReq.objects.filter(claimed_by=agent).all()
         serialized_academic = AcademicSerializer(queryset_academic, many=True)
-        
 
         return_data = {
             **serialized_basic.data,
@@ -150,26 +138,24 @@ class GetIndClaimed(APIView):
         )
 
 
-    
-
 class ClaimLead(APIView):
     authentication_classes = (TokenAuthentication)
     permission_classes = (IsAuthenticated)
-    
-    def post(self, request, id:int):
+
+    def post(self, request, id: int):
         '''
         View to claim a Lead:
         '''
         agent = get_agent(request.user)
         lead = Lead.objects.get(pk=id)
         lead.claimed_by = agent
-        
-        contact = Contact.objects.filter(prospect = lead).all()
+
+        contact = Contact.objects.filter(prospect=lead).all()
         for item in contact:
             item.claimed_by = agent
             item.save()
 
-        academic = AcademicReq.objects.filter(prospect = lead).all()
+        academic = AcademicReq.objects.filter(prospect=lead).all()
         for item in academic:
             item.claimed_by = agent
             item.save()
@@ -180,4 +166,3 @@ class ClaimLead(APIView):
             serialized.data,
             status=status.HTTP_200_OK
         )
-
