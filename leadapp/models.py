@@ -8,6 +8,9 @@ from .validators import PHONE_VALID, PIN_VALID
 
 
 class Lead(models.Model):
+    '''
+    Basic info from the forms submitted.
+    '''
 
     fname = models.CharField(max_length=16)
     mname = models.CharField(max_length=16, null=True, blank=True)
@@ -25,6 +28,9 @@ class Lead(models.Model):
 
 
 class Contact(models.Model):
+    '''
+    Contact info from the forms submitted.
+    '''
     prospect = models.ForeignKey(Lead, on_delete=models.CASCADE)
     address_1 = models.CharField(max_length=256)
     address_2 = models.CharField(max_length=256)
@@ -40,6 +46,9 @@ class Contact(models.Model):
 
 
 class AcademicReq(models.Model):
+    '''
+    Academic preferences info from the forms submitted.
+    '''
     prospect = models.ForeignKey(Lead, on_delete=models.CASCADE)
     faculty = models.CharField(max_length=64, choices=FACULTY_CHOICE)
     subject = models.CharField(max_length=64)

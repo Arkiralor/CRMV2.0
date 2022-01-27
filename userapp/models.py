@@ -5,17 +5,23 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
+    '''
+    Login user info.
+    '''
     pass
 
 
 class AgentProfile(models.Model):
+    '''
+    Agent from User.
+    '''
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=128)
     fname = models.CharField(max_length=64, null=True)
     lname = models.CharField(max_length=64, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
 
-    def __init__(self, user: User):
+    def __init__(self, user: User): 
         self.user = user
         self.fname = self.user.username
         self.fname = self.user.first_name
