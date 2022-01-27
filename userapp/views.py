@@ -10,8 +10,6 @@ from rest_framework.authtoken.models import Token
 
 # Create your views here.
 
-# Testing something
-
 
 class GetUserView(APIView):
     '''
