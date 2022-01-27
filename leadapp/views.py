@@ -14,10 +14,16 @@ from .helpers import get_agent
 
 
 class GetUnclaimed(APIView):
+    '''
+    Default APIview to get all unclaimed leads.
+    '''
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
+        '''
+        Get basic info of all unclaimed leads.
+        '''
         try:
             leads = Lead.objects.filter(
                 Q(claimed_by=None)
@@ -39,8 +45,14 @@ class GetUnclaimed(APIView):
 
 
 class NewLead(APIView):
+    '''
+    APIView to add a new lead into three tables from a single form.
+    '''
 
     def post(self, request):
+        '''
+        Add a new lead.
+        '''
         new_data = request.data
 
         basic = LeadSerializer(data=new_data)
@@ -77,6 +89,9 @@ class NewLead(APIView):
 
 
 class ViewClaimed(APIView):
+    '''
+    APIView for an agent/user to view all of their claimed leads.
+    '''
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -97,6 +112,10 @@ class ViewClaimed(APIView):
 
 
 class GetIndClaimed(APIView):
+    '''
+    View full details of an individual lead (basic, contact and academic preferences).
+    '''
+
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -139,6 +158,9 @@ class GetIndClaimed(APIView):
 
 
 class ClaimLead(APIView):
+    '''
+    APIView to claim an unclaimed lead.
+    '''
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 

@@ -76,7 +76,7 @@ class AddUserView(APIView):
 
 class GenerateAgentView(APIView):
     '''
-    Class to GET/POST Authors generated from users:
+    Class to GET/POST Agent Profiles generated from users:
     '''
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -85,45 +85,44 @@ class GenerateAgentView(APIView):
         '''
         GET a list of all generated authors in the system:
         '''
-        if request.user.is_staff:
-            queryset = AgentProfile.objects.all()
-            serialized = AgentSerializer(queryset, many=True)
-
-            return Response(
-                serialized.data,
-                status=status.HTTP_302_FOUND
-            )
-        else:
+        queryset = AgentProfile.objects.all()
+        if not request.user.is_staff:
             return Response(
                 {
                     "error": "Unauthorized"
                 },
-                status=status.HTTP_401_UNAUTHORIZED
+                status=status.HTTP_302_FOUND
             )
+        
+        serialized = AgentSerializer(queryset, many=True)
+        return Response(
+            serialized.data,    
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
     def post(self, request):
         '''
         POST/Generate a new agent profile from an existing user in the system:
         '''
         existing_agent = AgentProfile.objects.filter(user=request.user).first()
+        if existing_agent is not None:
+            return Response(
+                {
+                    "error": f"Agent: {existing_agent} already generated for User: {request.user}."
+                },
+                status=status.HTTP_201_CREATED
+            )
 
-        if existing_agent is None:
-            author = AgentProfile(user=request.user)
-            author.save()
-            serialized = AgentSerializer(author)
-            return Response(
-                {
-                    "success": f"Agent: {serialized.data} created for User: {request.user}."
-                },
-                status=status.HTTP_201_CREATED
-            )
-        else:
-            return Response(
-                {
-                    "error": f"Agent already generated for User: {request.user}."
-                },
-                status=status.HTTP_201_CREATED
-            )
+        agent = AgentProfile(user=request.user)
+        agent.save()
+        serialized = AgentSerializer(agent)
+        return Response(
+            {
+                "success": f"Agent: {serialized.data} created for User: {request.user}."
+            },
+            status=status.HTTP_201_CREATED
+        )
+            
 
 
 class UserLoginView(APIView):
@@ -132,6 +131,9 @@ class UserLoginView(APIView):
     '''
 
     def post(self, request):
+        '''
+        User Login API.
+        '''
         data = request.data
 
         username = data.get('username')
@@ -171,6 +173,9 @@ class UserLogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        '''
+        User Logout API.
+        '''
         token = Token.objects.filter(user=request.user).first()
         token.delete()
 
