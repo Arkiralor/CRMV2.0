@@ -100,7 +100,7 @@ class GetIndClaimed(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def get(self, request, id:int):
         '''
         View to get individual leads claimed by user:
         '''
@@ -142,20 +142,40 @@ class ClaimLead(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
+    def post(self, request, id:int):
         '''
         View to claim a Lead:
         '''
-        ret_key = request.data.get('id')
         agent = get_agent(request.user)
-        lead = Lead.objects.get(pk=ret_key)
+        lead = Lead.objects.get(pk=id)
+        if lead.claimed_by and not request.is_staff:
+            return Response(
+                {
+                    "error": "Lead already claimed."
+                },
+                status = status.HTTP_401_UNAUTHORIZED
+            )
         lead.claimed_by = agent
 
         contact = Contact.objects.filter(prospect=lead).first()
+        if contact.claimed_by and not request.is_staff:
+            return Response(
+                {
+                    "error": "Coontact already claimed."
+                },
+                status = status.HTTP_401_UNAUTHORIZED
+            )
         contact.claimed_by = agent
         contact.save()
 
         academic = AcademicReq.objects.filter(prospect=lead).first()
+        if academic.claimed_by and not request.is_staff:
+            return Response(
+                {
+                    "error": "Academic requirements already claimed."
+                },
+                status = status.HTTP_401_UNAUTHORIZED
+            )
         academic.claimed_by = agent
         academic.save()
 
